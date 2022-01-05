@@ -1,0 +1,54 @@
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        required: true
+        type: string
+      java_version:
+        required: false
+        type: number
+        default: 8
+    outputs:
+      app-version:
+        value: ${{ jobs.get-app-version.outputs.app-version }}
+
+
+jobs:
+  get-app-version:
+    name: Get the app-version from the POM file
+    runs-on: ubuntu-latest
+    outputs:
+      app-version: ${{ steps.get-version.outputs.app-version }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.working_directory }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Printing Inputs
+        run: |
+          echo "java_version:      ${{ inputs.java_version }}"
+          echo "working_directory: ${{ inputs.working_directory}}"
+
+      - name: "Set up JDK ${{ inputs.java_version }}"
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: ${{ inputs.java_version }}
+          cache: 'maven'
+
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Get Java Project Version
+        id: get-version
+        run: |
+          _version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "::set-output name=app-version::$_version"
+          echo $_version

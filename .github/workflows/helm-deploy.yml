@@ -1,0 +1,77 @@
+on:
+  workflow_call:
+    inputs:
+      env:
+        type: string
+        required: true
+      app_name:
+        type: string
+        required: true
+      working_directory:
+        type: string
+        required: true
+      values-file:
+        type: string
+        required: false
+        default: "values-file.yml"
+    secrets:
+      openshift_server_url:
+        required: true
+      openshift_token:
+        required: true
+      openshift_namespace:
+        required: true
+      values:
+        required: false
+        description: Override the inputs value
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.env }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: azure/setup-helm@v1
+
+      - name: Printing Inputs
+        run: |
+          echo "env: ${{ inputs.env }}"
+          echo "app_name: ${{ inputs.app_name }}"
+          echo "working_directory: ${{ inputs.working_directory }}"
+          echo "values: ${{ inputs.values }}"
+          echo "values-file: ${{ inputs.working_directory }}"
+
+#      - name: Define namespace
+#        run: >-
+#          echo OPENSHIFT_NAMESPACE="${{ secrets.openshift_license_plate }}-${{ inputs.env }}" | tee -a $GITHUB_ENV
+
+      - name: Log in to OpenShift
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ secrets.openshift_server_url }}
+          openshift_token: ${{ secrets.openshift_token }}
+          namespace: ${{ inputs.openshift_namespace }}
+
+      - name: adjust values overrides
+        run: |
+          overrides=''
+          _arguments="${{ secrets.values }}"
+          for arg in $_arguments;do
+            overrides="$overrides --set $arg"
+          done
+          echo SET_OVERRIDES="$overrides" | tee -a $GITHUB_ENV
+
+      - name: create the values file
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          if [ ! -d "${{ inputs.values-file }}" ]
+            then touch "${{ inputs.values-file }}"
+          fi
+
+      - name: Run chart-releaser
+        run: >-
+          eval helm upgrade --install ${{ inputs.app_name }} ${{ inputs.working_directory }} 
+          --namespace ${{ secrets.openshift_namespace }}
+          -f "${{ inputs.working_directory }}/${{ inputs.values-file }}"
+          ${{ env.SET_OVERRIDES }}
+          --debug

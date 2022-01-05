@@ -1,0 +1,36 @@
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        required: true
+        type: string
+      java_version:
+        required: false
+        type: number
+        default: 8
+
+
+jobs:
+  build-artifact:
+    name: Java Maven Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Printing Inputs
+        run: |
+          echo "java_version:      ${{ inputs.java_version }}"
+          echo "working_directory: ${{ inputs.working_directory}}"
+
+      - name: "Set up JDK ${{ inputs.java_version }}"
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: ${{ inputs.java_version }}
+          cache: 'maven'
+
+      - name: Build with Maven
+        working-directory: ${{ inputs.working_directory }}
+        run: >-
+          ./mvnw -ntp --batch-mode clean test

@@ -1,0 +1,84 @@
+on:
+  workflow_call:
+    inputs:
+      app_name:
+        required: true
+        type: string
+      app_version:
+        required: true
+        type: string
+      working_directory:
+        required: true
+        type: string
+      dockerfile:
+        required: false
+        type: string
+        default: Dockerfile
+      env:
+        required: false
+        type: string
+        default: dev
+    secrets:
+      openshift_server_url:
+        required: true
+      openshift_token:
+        required: true
+      openshift_external_repository:
+        required: true
+      openshift_license_plate:
+        required: true
+      username:
+        required: true
+      password:
+        required: true
+
+jobs:
+  build-image:
+    name: Build and deploy image to OpenShift
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.env }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.working_directory }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Printing Inputs
+        run: |
+          echo "app_name: ${{ inputs.app_name }}"
+          echo "app_version: ${{ inputs.app_version}}"
+          echo "working_directory: ${{ inputs.working_directory}}"
+          echo "dockerfile: ${{ inputs.dockerfile}}"
+
+      - name: Define namespace
+        run: >-
+          echo OPENSHIFT_NAMESPACE="${{ secrets.openshift_license_plate }}-${{ inputs.env }}" | tee -a $GITHUB_ENV
+
+      - name: Authenticate and set context
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ secrets.openshift_server_url }}
+          openshift_token: ${{ secrets.openshift_token }}
+          namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+
+      - name: Docker Login
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.username }}
+          password: ${{ secrets.password }}
+          registry: ${{ secrets.openshift_external_repository }}
+
+      - name: Build from Dockerfile
+        id: build-image
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: |
+            ${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:latest
+            ${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:${{ inputs.app_version }}
+          context: "./${{ inputs.working_directory }}"
+          file: "./${{ inputs.working_directory }}/${{ inputs.dockerfile }}"
+          build-args: |
+            APP_NAME=${{ inputs.app_name }}
+            APP_VERSION=${{ inputs.app_version }}
