@@ -1,7 +1,7 @@
 on:
   workflow_call:
     inputs:
-      build_config_name:
+      image_stream_name:
         description: |
           Name of the BuildConfig that will be triggered. We assume that the Image will also have the same name
         type: string
