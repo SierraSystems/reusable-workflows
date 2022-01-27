@@ -42,6 +42,6 @@ jobs:
       run: | 
         for tag in $( echo ${{ inputs.image_tags }} | sed 's/,/ /g' ); do
           oc tag \
-            ${{ secrets.openshift_external_repository }}/${{ secrets.openshift_namespace }}/${{ inputs.build_config_name }}:${{ inputs.source_image_tag }} \
-            ${{ inputs.build_config_name }}:${tag}
+            ${{ secrets.openshift_external_repository }}/${{ secrets.openshift_namespace }}/${{ inputs.image_stream_name }}:${{ inputs.source_image_tag }} \
+            ${{ inputs.image_stream_name }}:${tag}
         done
