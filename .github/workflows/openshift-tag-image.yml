@@ -1,0 +1,47 @@
+on:
+  workflow_call:
+    inputs:
+      image_stream_name:
+        description: |
+          Name of the BuildConfig that will be triggered. We assume that the Image will also have the same name
+        type: string
+        required: true
+      source_image_tag:
+        description: |
+          The tag the build config will initially create
+        type: string
+        required: false
+        default: latest
+      image_tags:
+        description: |
+          Tag(s) that the image will have after the build. If more than one tag, they should be separated them with commas
+        default: "dev"
+        type: string
+        required: false
+    secrets:
+      openshift_namespace:
+        required: true
+      openshift_server_url:
+        required: true
+      openshift_token:
+        required: true
+      openshift_external_repository:
+        required: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Authenticate and set context
+      uses: redhat-actions/oc-login@v1
+      with:
+        openshift_server_url: ${{ secrets.openshift_server_url }}
+        openshift_token: ${{ secrets.openshift_token }}
+        namespace: ${{ secrets.openshift_namespace }}
+
+    - name: Retag images
+      run: | 
+        for tag in $( echo ${{ inputs.image_tags }} | sed 's/,/ /g' ); do
+          oc tag \
+            ${{ secrets.openshift_external_repository }}/${{ secrets.openshift_namespace }}/${{ inputs.image_stream_name }}:${{ inputs.source_image_tag }} \
+            ${{ inputs.image_stream_name }}:${tag}
+        done
