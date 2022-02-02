@@ -50,7 +50,7 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: image
-          image-ref: '${{inputs.build_config_name}}:${{inputs.source_image_tag}}'
+          image-ref: image-registry.apps.silver.devops.gov.bc.ca/91beaa-tools/bc-paris-api:trivy
           format: template
           template: '@/contrib/sarif.tpl'
           output: trivy-results.sarif
