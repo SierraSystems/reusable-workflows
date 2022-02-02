@@ -15,9 +15,9 @@ on:
     secrets:
       openshift_namespace:
         required: true
-      openshift_server_url:
+      openshift_sa_deployer_name:
         required: true
-      openshift_token:
+      openshift_sa_tools_deployer_token:
         required: true
       openshift_external_repository:
         required: true
@@ -30,20 +30,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       
-      - name: Authenticate and set context
-        uses: redhat-actions/oc-login@v1
+      - name: Login to OpenShift Container Repository - Silver
+        uses: docker/login-action@v1
         with:
-          openshift_server_url: ${{ secrets.openshift_server_url }}
-          openshift_token: ${{ secrets.openshift_token }}
-          namespace: ${{ secrets.openshift_namespace }}
+          registry: ${{ secrets.openshift_external_repository }}
+          username: ${{ secrets.openshift_sa_deployer_name }}
+          password: ${{ secrets.openshift_sa_tools_deployer_token }}
         
         #- name: Trigger Build Config
         #run: oc start-build ${{ inputs.build_config_name }} --wait
 
+      - name: Pull Image for Scannning
+        env:
+          IMAGE: ${{secrets.openshift_external_repository}}/${{secrets.openshift_namespace}}/${{inputs.build_config_name}}:${{inputs.source_image_tag}}
+        run: |
+          docker pull ${IMAGE}
+
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'image-registry.apps.silver.devops.gov.bc.ca/91beaa-tools/bc-paris-api'
+          scan-type: image
+          image-ref: '${{inputs.build_config_name}}:${{inputs.source_image_tag}}'
           format: template
           template: '@/contrib/sarif.tpl'
           output: trivy-results.sarif
