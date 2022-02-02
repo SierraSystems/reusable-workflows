@@ -42,8 +42,8 @@ jobs:
           username: ${{ secrets.openshift_sa_name }}
           password: ${{ secrets.openshift_sa_password }}
         
-        #- name: Trigger Build Config
-        #run: oc start-build ${{ inputs.build_config_name }} --wait
+      - name: Trigger Build Config
+        run: oc start-build ${{ inputs.build_config_name }} --wait
 
       - name: Pull Image for Scannning
         env:
