@@ -44,7 +44,7 @@ jobs:
         env:
           IMAGE: ${{secrets.openshift_external_repository}}/${{secrets.openshift_namespace}}/${{inputs.build_config_name}}:${{inputs.source_image_tag}}
         run: |
-          docker pull ${IMAGE}
+          docker pull image-registry.apps.silver.devops.gov.bc.ca/91beaa-tools/bc-paris-api:trivy
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
