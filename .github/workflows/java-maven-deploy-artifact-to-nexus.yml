@@ -10,16 +10,6 @@ on:
         required: false
         type: number
         default: 8
-      maven_mirror_id:
-        description: "Id of the mirror"
-        required: false
-        type: string
-        default: "nexus"
-      maven_mirror_mirrorof:
-        description: "What repositories should be mirrored"
-        required: false
-        type: string
-        default: "*"
     secrets:
       nexus_snapshot_username:
         description: "User that can push snapshots to Nexus server"
@@ -32,9 +22,6 @@ on:
         required: true
       nexus_releases_password:
         description: "User's password that can push releases to Nexus server"
-        required: true
-      maven_mirror_url:
-        description: "FQDN to the server along with the path to the repository"
         required: true
       nexus_url:
         description: "Nexus' FQDN"
@@ -64,12 +51,6 @@ jobs:
             "id":"nexus-releases",
             "username": "${{ secrets.nexus_releases_username }}",
             "password": "${{ secrets.nexus_releases_password }}"
-          }]
-        mirrors: >-
-          [{
-              "id": "${{ inputs.maven_mirror_id }}",
-              "mirrorOf": "${{ inputs.maven_mirror_mirrorof }}",
-              "url": "${{ secrets.maven_mirror_url }}"
           }]
 
     - name: build libs artifacts
