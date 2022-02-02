@@ -1,0 +1,32 @@
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        required: true
+        type: string
+    outputs:
+      github-release-version:
+        value: ${{ jobs.get-github-release-version.outputs.github-lastestcommitid }}
+
+jobs:
+  get-github-release-version:
+    name: Get the lastest commit id from the github branch used.
+    runs-on: ubuntu-latest
+    outputs:
+      github-lastestcommitid: ${{ steps.get-github-latestcommit.outputs.github-lastestcommit }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.working_directory }}
+
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v2
+
+        # Get Git latest short Sha# from the release branch used.
+      - name: Get Release Git Version
+        id: get-github-latestcommit
+        run: |
+          branch=${GITHUB_REF##*/}
+          _shortSha=$(echo $(git rev-parse --short HEAD) | cut -c1-7)
+          echo "::set-output name=github-lastestcommit::$_shortSha"
+          echo $_shortSha

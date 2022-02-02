@@ -1,0 +1,56 @@
+on:
+  workflow_call:
+    inputs:
+      app:
+        description: |
+          The deployemnt config name whose pods has to be labelled.
+        type: string
+        required: true
+      target_env:
+        description: |
+          The target env. to where the pods has to be labelled.
+        type: string
+        required: true
+      label:
+        description: |
+          Name of the pod label for patching.
+        type: string
+        required: true
+    secrets:
+      openshift_namespace:
+        required: true
+      openshift_server_url:
+        required: true
+      openshift_sa_env_deployer_token:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target_env }}
+    steps:
+
+    #Login to Openshift using OC SA and Token of respective env.
+    - name: Authenticate OC Env Specific SA
+      uses: redhat-actions/oc-login@v1
+      with:
+        openshift_server_url: ${{ secrets.openshift_server_url }}
+        openshift_token: ${{ secrets.openshift_sa_env_deployer_token }}
+        namespace: ${{secrets.openshift_namespace}}-${{ inputs.target_env }}
+
+    # Labels the deployment config of the application with a label
+    - name: Labelling deployment config pods to release git commit version
+      env:
+        podLabel: ${{inputs.label}}
+        appName: ${{inputs.app}}
+        openshiftEnvNamespace: ${{secrets.openshift_namespace}}-${{inputs.target_env }}
+      run: |
+        oc patch dc ${appName} -n ${openshiftEnvNamespace} --patch '{"spec":{"template":{"metadata":{"labels":{"version":"${{ env.podLabel }}"}}}}}'
+      
+    # Wait to DC rollout to get completed after patching with label
+    - name: Wait for DC rollout
+      env:
+        appName: ${{ inputs.app }}
+        openshiftEnvNamespace: ${{secrets.openshift_namespace}}-${{ inputs.target_env  }}
+      run: |
+        oc rollout status -n ${openshiftEnvNamespace} dc/${appName} --watch
