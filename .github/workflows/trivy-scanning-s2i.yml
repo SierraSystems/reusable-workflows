@@ -3,12 +3,17 @@ on:
     inputs:
       build_config_name:
         description: |
-          Name of the BuildConfig that will be triggered. We assume that the Image will also have the same name
+          Name of the BuildConfig that will be triggered to build the image for scanning.
+        type: string
+        required: true
+      imagestream_name:
+        description: |
+          Name of the image stream where the image to be scanned resides.
         type: string
         required: true
       source_image_tag:
         description: |
-          The tag the build config will initially create
+          The tag the image that needs to be scanned.
         type: string
         required: false
         default: trivy
@@ -42,15 +47,15 @@ jobs:
 
       - name: Pull Image for Scannning
         env:
-          IMAGE: ${{secrets.openshift_external_repository}}/${{secrets.openshift_namespace}}/${{inputs.build_config_name}}:${{inputs.source_image_tag}}
+          IMAGE: ${{secrets.openshift_external_repository}}/${{secrets.openshift_namespace}}/${{inputs.imagestream_name}}:${{inputs.source_image_tag}}
         run: |
-          docker pull image-registry.apps.silver.devops.gov.bc.ca/91beaa-tools/bc-paris-api:trivy
+          docker pull ${IMAGE}
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: image
-          image-ref: image-registry.apps.silver.devops.gov.bc.ca/91beaa-tools/bc-paris-api:trivy
+          image-ref: ${{secrets.openshift_external_repository}}/${{secrets.openshift_namespace}}/${{inputs.imagestream_name}}:${{inputs.source_image_tag}}
           format: template
           template: '@/contrib/sarif.tpl'
           output: trivy-results.sarif
