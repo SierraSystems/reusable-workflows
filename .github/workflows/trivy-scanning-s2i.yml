@@ -24,6 +24,10 @@ on:
         required: true
       openshift_sa_password:
         required: true
+      openshift_server_url:
+        required: true
+      openshift_token:
+        required: true
       openshift_external_repository:
         required: true
 
@@ -35,15 +39,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       
+      - name: Authenticate and set context
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ secrets.openshift_server_url }}
+          openshift_token: ${{ secrets.openshift_token }}
+          namespace: ${{ secrets.openshift_namespace }}
+        
+      - name: Trigger Build Config
+        run: oc start-build ${{ inputs.build_config_name }} --wait
+      
       - name: Login to OpenShift Container Repository - Silver
         uses: docker/login-action@v1
         with:
           registry: ${{ secrets.openshift_external_repository }}
           username: ${{ secrets.openshift_sa_name }}
           password: ${{ secrets.openshift_sa_password }}
-        
-      - name: Trigger Build Config
-        run: oc start-build ${{ inputs.build_config_name }} --wait
 
       - name: Pull Image for Scannning
         env:
