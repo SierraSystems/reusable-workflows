@@ -37,8 +37,8 @@ jobs:
           openshift_token: ${{ secrets.openshift_token }}
           namespace: ${{ secrets.openshift_namespace }}
         
-      - name: Trigger Build Config
-        run: oc start-build ${{ inputs.build_config_name }} --wait
+        #- name: Trigger Build Config
+        #run: oc start-build ${{ inputs.build_config_name }} --wait
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
