@@ -3,9 +3,6 @@ name: "Workflow to build a Java artifact using Maven abd deploy it onto a Nexus 
 on:
   workflow_call:
     inputs:
-      working_directory:
-        required: true
-        type: string
       java_version:
         required: false
         type: number
