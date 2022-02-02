@@ -39,15 +39,11 @@ jobs:
         
       - name: Trigger Build Config
         run: oc start-build ${{ inputs.build_config_name }} --wait
-        
-      - name: Maven Verify
-        run: mvn -ntp clean verify
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: image
-          image-ref: '${{ secrets.openshift_external_repository }}/${{ secrets.openshift_namespace }}/${{ inputs.build_config_name }}:${{ inputs.source_image_tag }}'
+          image-ref: 'image-registry.apps.silver.devops.gov.bc.ca/91beaa-tools/bc-paris-api'
           format: template
           template: '@/contrib/sarif.tpl'
           output: trivy-results.sarif
