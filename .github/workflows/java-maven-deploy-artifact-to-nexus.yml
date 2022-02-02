@@ -1,0 +1,78 @@
+name: "Workflow to build a Java artifact using Maven abd deploy it onto a Nexus repository"
+
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        required: true
+        type: string
+      java_version:
+        required: false
+        type: number
+        default: 8
+      maven_mirror_id:
+        description: "Id of the mirror"
+        required: false
+        type: string
+        default: "nexus"
+      maven_mirror_mirrorof:
+        description: "What repositories should be mirrored"
+        required: false
+        type: string
+        default: "*"
+    secrets:
+      nexus_snapshot_username:
+        description: "User that can push snapshots to Nexus server"
+        required: true
+      nexus_snapshot_password:
+        description: "User's password that can push snapshots to Nexus server"
+        required: true
+      nexus_releases_username:
+        description: "User that can push releases to Nexus server"
+        required: true
+      nexus_releases_password:
+        description: "User's password that can push releases to Nexus server"
+        required: true
+      maven_mirror_url:
+        description: "FQDN to the server along with the path to the repository"
+        required: true
+      nexus_url:
+        description: "Nexus' FQDN"
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: "Set up JDK ${{ inputs.java_version }}"
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'temurin'
+        java-version: ${{ inputs.java_version }}
+        cache: 'maven'
+
+    - uses: whelk-io/maven-settings-xml-action@v20
+      with:
+        servers: >-
+          [{
+            "id":"nexus-snapshots",
+            "username": "${{ secrets.nexus_snapshot_username }}",
+            "password": "${{ secrets.nexus_snapshot_password }}"
+          },{
+            "id":"nexus-releases",
+            "username": "${{ secrets.nexus_releases_username }}",
+            "password": "${{ secrets.nexus_releases_password }}"
+          }]
+        mirrors: >-
+          [{
+              "id": "${{ inputs.maven_mirror_id }}",
+              "mirrorOf": "${{ inputs.maven_mirror_mirrorof }}",
+              "url": "${{ secrets.maven_mirror_url }}"
+          }]
+
+    - name: build libs artifacts
+      env:
+        NEXUS_URL: ${{ secrets.nexus_url }}
+      run: mvn clean deploy -B -P libs -DskipTests=true --fail-at-end
