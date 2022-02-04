@@ -65,7 +65,8 @@ jobs:
         with:
           scan-type: image
           image-ref: ${{secrets.openshift_external_repository}}/${{secrets.openshift_namespace}}/${{inputs.imagestream_name}}:${{inputs.image_tag}}
-          format: sarif
+          format: template
+          template: '@/contrib/sarif.tpl'
           output: trivy-results.sarif
           exit-code: '1'
           ignore-unfixed: true
