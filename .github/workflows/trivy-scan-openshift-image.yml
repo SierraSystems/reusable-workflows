@@ -12,6 +12,12 @@ on:
         type: string
         required: false
         default: trivy
+      trivy_format:
+        description: |
+          How the output should be displayed
+        type: string
+        required: false
+        default: sarif
       push_results_to_github:
         description: |
           decide wheter otr not the results should be pushed to GitHub Security tab
@@ -60,13 +66,24 @@ jobs:
         run: |
           docker pull ${IMAGE}
 
-      - name: Run Trivy vulnerability scanner
+      - name: Run Trivy vulnerability scanner - stdout
         uses: aquasecurity/trivy-action@master
+        if: !${{ inputs.push_results_to_github }}
         with:
           scan-type: image
           image-ref: ${{secrets.openshift_external_repository}}/${{secrets.openshift_namespace}}/${{inputs.imagestream_name}}:${{inputs.image_tag}}
-          format: template
-          template: '@/contrib/sarif.tpl'
+          format: ${{ inputs.output }}
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: HIGH,CRITICAL
+
+      - name: Run Trivy vulnerability scanner - save-result to file
+        uses: aquasecurity/trivy-action@master
+        if: ${{ inputs.push_results_to_github }}
+        with:
+          scan-type: image
+          image-ref: ${{secrets.openshift_external_repository}}/${{secrets.openshift_namespace}}/${{inputs.imagestream_name}}:${{inputs.image_tag}}
+          format: ${{ inputs.output }}
           output: trivy-results.sarif
           exit-code: '1'
           ignore-unfixed: true
