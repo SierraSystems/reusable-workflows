@@ -16,17 +16,13 @@ on:
           The tag the image that needs to be scanned.
         type: string
         required: false
-        default: trivy
+        default: latest
     secrets:
       openshift_namespace:
         required: true
       openshift_sa_name:
         required: true
       openshift_sa_password:
-        required: true
-      openshift_server_url:
-        required: true
-      openshift_token:
         required: true
       openshift_external_repository:
         required: true
@@ -38,16 +34,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      
-      - name: Authenticate and set context
-        uses: redhat-actions/oc-login@v1
-        with:
-          openshift_server_url: ${{ secrets.openshift_server_url }}
-          openshift_token: ${{ secrets.openshift_token }}
-          namespace: ${{ secrets.openshift_namespace }}
-        
-      - name: Trigger Build Config
-        run: oc start-build ${{ inputs.build_config_name }} --wait
       
       - name: Login to OpenShift Container Repository - Silver
         uses: docker/login-action@v1
