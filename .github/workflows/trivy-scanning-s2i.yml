@@ -17,11 +17,6 @@ on:
         type: string
         required: false
         default: trivy
-      build_new_image:
-        description: "whether or not a new image should be built"
-        required: false
-        type: boolean
-        default: true
     secrets:
       openshift_namespace:
         required: true
@@ -52,7 +47,6 @@ jobs:
           namespace: ${{ secrets.openshift_namespace }}
         
       - name: Trigger Build Config
-        if: inputs.build_new_image
         run: oc start-build ${{ inputs.build_config_name }} --wait
       
       - name: Login to OpenShift Container Repository - Silver
