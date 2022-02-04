@@ -92,6 +92,6 @@ jobs:
       #Upload results to the GitHub Security Tab.
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v1
-        if: always() and ${{ inputs.push_results_to_github }}
+        if: always() && ${{ inputs.push_results_to_github }}
         with:
           sarif_file: trivy-results.sarif
