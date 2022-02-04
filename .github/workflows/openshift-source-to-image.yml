@@ -15,9 +15,9 @@ on:
       image_tags:
         description: |
           Tag(s) that the image will have after the build. If more than one tag, they should be separated them with commas
-        default: "dev"
         type: string
         required: false
+        default: ""
     secrets:
       openshift_namespace:
         required: true
@@ -42,6 +42,7 @@ jobs:
       run: oc start-build ${{ inputs.build_config_name }} --wait
 
     - name: Retag images
+      if: ${{ (inputs.image_tags != '') }}
       run: | 
         for tag in $( echo ${{ inputs.image_tags }} | sed 's/,/ /g' ); do
           oc tag \
