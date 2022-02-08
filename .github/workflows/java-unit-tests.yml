@@ -8,6 +8,13 @@ on:
         required: false
         type: number
         default: 8
+      profile:
+        required: false
+        type: string
+        default: ""
+    secrets:
+      nexus_url:
+        required: false
 
 
 jobs:
@@ -30,7 +37,18 @@ jobs:
           java-version: ${{ inputs.java_version }}
           cache: 'maven'
 
-      - name: Build with Maven
+      - name: Build with Maven -  no profile
+        if: ${{ !inputs.profile }}
+        working-directory: ${{ inputs.working_directory }}
+        env:
+          NEXUS_URL: ${{ secrets.nexus_url }}
+        run: >-
+          mvn -ntp --batch-mode clean test
+
+      - name: Build with Maven - with Profile
+        if: ${{ inputs.profile }}
+        env:
+          NEXUS_URL: ${{ secrets.nexus_url }}
         working-directory: ${{ inputs.working_directory }}
         run: >-
-          ./mvnw -ntp --batch-mode clean test
+          mvn -ntp --batch-mode clean test -P ${{ inputs.profile }}

@@ -1,11 +1,6 @@
 on:
   workflow_call:
     inputs:
-      build_config_name:
-        description: |
-          Name of the BuildConfig that will be triggered to build the image for scanning.
-        type: string
-        required: true
       imagestream_name:
         description: |
           Name of the image stream where the image to be scanned resides.
