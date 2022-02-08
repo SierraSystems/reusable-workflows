@@ -7,6 +7,14 @@ on:
         required: false
         type: number
         default: 8
+      profile:
+        required: false
+        type: string
+        default: ""
+      working_directory:
+        required: false
+        type: string
+        default: "."
     secrets:
       nexus_snapshot_username:
         description: "User that can push snapshots to Nexus server"
@@ -51,6 +59,8 @@ jobs:
           }]
 
     - name: build libs artifacts
+      working-directory: ${{ inputs.working-directory }}
       env:
         NEXUS_URL: ${{ secrets.nexus_url }}
-      run: mvn clean deploy -B -P libs -DskipTests=true --fail-at-end
+        PROFILE: ${{ inputs.profile }}
+      run: mvn clean deploy -B -DskipTests=true --fail-at-end ${PROFILE:+"-P $PROFILE"}
