@@ -11,7 +11,7 @@ on:
         required: false
         type: string
         default: ""
-      working_directory:
+      working-directory:
         required: false
         type: string
         default: "."
