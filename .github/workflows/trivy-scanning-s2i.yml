@@ -44,7 +44,7 @@ jobs:
           docker pull ${IMAGE}
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: SierraSystems/trivy-action@master
         with:
           scan-type: image
           image-ref: ${{secrets.openshift_external_repository}}/${{secrets.openshift_namespace}}/${{inputs.imagestream_name}}:${{inputs.source_image_tag}}
