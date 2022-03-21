@@ -48,9 +48,7 @@ jobs:
         with:
           scan-type: image
           image-ref: ${{secrets.openshift_external_repository}}/${{secrets.openshift_namespace}}/${{inputs.imagestream_name}}:${{inputs.source_image_tag}}
-          format: template
-          template: '@/contrib/sarif.tpl'
-          output: trivy-results.sarif
+          format: table
           exit-code: '1'
           ignore-unfixed: true
           severity: HIGH,CRITICAL
