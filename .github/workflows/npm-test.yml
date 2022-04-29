@@ -9,7 +9,7 @@ on:
       node_version:
         required: false
         type: string
-        default: "lts/*"
+        default: "16"
 
 jobs:
   test:
@@ -28,6 +28,7 @@ jobs:
         with:
           node-version: "${{ inputs.node_version }}"
           cache: "npm"
+
 
       - name: Install dependencies
         run: npm ci
