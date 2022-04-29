@@ -1,0 +1,33 @@
+
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        required: false
+        type: string
+        default: "."
+      node_version:
+        required: false
+        type: string
+        default: "lts/*"
+
+jobs:
+  test:
+    name: NPM Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "${{ inputs.java_version }}"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: "${{ inputs.java_version }}"
+
+      - name: Run tests
+        run: CI=true npm run test
+        working-directory: "${{ inputs.java_version }}"
