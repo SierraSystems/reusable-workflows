@@ -20,7 +20,7 @@ jobs:
 
       - name: print inputs
         run: |
-          echo ${{ inputs.java_version }}
+          echo ${{ inputs.working_directory }}
           echo ${{ inputs.node_version }}
 
       - name: Setup node
