@@ -18,16 +18,21 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: print inputs
+        run: |
+          echo ${{ inputs.java_version }}
+          echo ${{ inputs.node_version }}
+
       - name: Setup node
         uses: actions/setup-node@v3
         with:
-          node-version: "${{ inputs.java_version }}"
+          node-version: "${{ inputs.node_version }}"
           cache: "npm"
 
       - name: Install dependencies
         run: npm ci
-        working-directory: "${{ inputs.java_version }}"
+        working-directory: "${{ inputs.working_directory }}"
 
       - name: Run tests
         run: CI=true npm run test
-        working-directory: "${{ inputs.java_version }}"
+        working-directory: "${{ inputs.working_directory }}"
