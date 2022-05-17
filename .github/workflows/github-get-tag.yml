@@ -16,13 +16,13 @@ jobs:
       - name: Get Version
         id: ref
         run: |
-          ref="" 
+          tag="" 
           
           if grep -q "refs\/tags" <<< "$GITHUB_REF" ;then
-            ref=$(echo $GITHUB_REF | cut -d / -f 3)
+            tag="$(echo $GITHUB_REF | cut -d / -f 3)"
           fi
           
-          echo "::set-output name=git-tag::$ref"
-          echo "$ref"
+          echo "::set-output name=git-tag::tag"
+          echo "$tag"
 
 
