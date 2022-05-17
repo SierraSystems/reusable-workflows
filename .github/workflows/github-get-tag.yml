@@ -18,9 +18,10 @@ jobs:
         run: |
           ref="" 
           
-          if "refs\/tags" in "$GITHUB_REF"
-            ref= $(echo $GITHUB_REF | cut -d / -f 3)
-        
+          if "refs\/tags" in "$GITHUB_REF"; then
+            ref=$(echo $GITHUB_REF | cut -d / -f 3)
+          fi
+          
           echo "::set-output name=ref::$ref"
 
 
