@@ -31,6 +31,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - name: Print inputs
+      run: |
+        echo "build_config_name:  ${{ inputs.build_config_name }}"
+        echo "source_image_tag:   ${{ inputs.source_image_tag}}"
+        echo "image_tags:         ${{ inputs.image_tags}}"
+
     - name: Authenticate and set context
       uses: redhat-actions/oc-login@v1
       with:
