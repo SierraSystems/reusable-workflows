@@ -1,5 +1,5 @@
 name: "Get the tag"
-# If no tag associated to the latest commit it the default response is the short git hash
+# If no tag associated to the latest commit, the default response is an empty string
 
 on:
   workflow_call:
@@ -16,7 +16,7 @@ jobs:
       - name: Get Version
         id: ref
         run: |
-          ref="$(git rev-parse --short GITHUB_SHA)" 
+          ref="" 
           
           if "refs\/tags" in "$GITHUB_REF"
             ref= $(echo $GITHUB_REF | cut -d / -f 3)
