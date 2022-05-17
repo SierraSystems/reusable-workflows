@@ -1,0 +1,31 @@
+name: "Get the tag"
+# If no tag associated to the latest commit, the default response is an empty string
+
+on:
+  workflow_call:
+    outputs:
+      git-tag:
+        value: ${{ jobs.get-tag.outputs.git-tag }}
+
+jobs:
+  get-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      git-tag: ${{ steps.get-git-tag.outputs.git-tag }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Get Version
+        id: get-git-tag
+        run: |
+          tag="" 
+          
+          if grep -q "refs\/tags" <<< "$GITHUB_REF" ;then
+            tag="$(echo $GITHUB_REF | cut -d / -f 3)"
+          fi
+          
+          echo "::set-output name=git-tag::$tag"
+          echo "$tag"
+
+
