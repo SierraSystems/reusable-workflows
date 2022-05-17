@@ -22,7 +22,7 @@ jobs:
             tag="$(echo $GITHUB_REF | cut -d / -f 3)"
           fi
           
-          echo "::set-output name=git-tag::tag"
+          echo "::set-output name=git-tag::$tag"
           echo "$tag"
 
 
