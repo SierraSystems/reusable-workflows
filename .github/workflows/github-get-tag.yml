@@ -5,16 +5,19 @@ on:
   workflow_call:
     outputs:
       git-tag:
-        value: ${{ jobs.get-tag.steps.get-tag.outputs.git-tag }}
+        value: ${{ jobs.get-tag.outputs.git-tag }}
 
 jobs:
   get-tag:
     runs-on: ubuntu-latest
+    outputs:
+      git-tag: ${{ steps.get-git-tag.outputs.git-tag }}
+
     steps:
       - uses: actions/checkout@v2
 
       - name: Get Version
-        id: get-tag
+        id: get-git-tag
         run: |
           tag="" 
           
