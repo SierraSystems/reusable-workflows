@@ -1,0 +1,26 @@
+name: "Get the tag"
+# If no tag associated to the latest commit it the default response is the short git hash
+
+on:
+  workflow_call:
+    outputs:
+      git-tag:
+        value: ${{ jobs.get-tag.outputs.ref }}
+
+jobs:
+  get-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Get Version
+        id: ref
+        run: |
+          ref="$(git rev-parse --short GITHUB_SHA)" 
+          
+          if "refs\/tags" in "$GITHUB_REF"
+            ref= $(echo $GITHUB_REF | cut -d / -f 3)
+        
+          echo "::set-output name=ref::$ref"
+
+
