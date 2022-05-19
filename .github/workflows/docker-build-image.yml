@@ -9,7 +9,7 @@ on:
       app_version:
         required: false
         type: string
-        default: ""
+        default: "*"
       working_directory:
         required: true
         type: string
