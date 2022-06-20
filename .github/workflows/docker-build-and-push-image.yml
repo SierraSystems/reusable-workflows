@@ -80,9 +80,9 @@ jobs:
         if: ${{ (inputs.image_tags == '') }}
         run: |
           read -r -d '' tags <<-EOM
-            ${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:latest
-            ${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:${{ inputs.app_version }}
-            EOM
+          ${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:latest
+          ${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:${{ inputs.app_version }}
+          EOM
           echo "IMAGE_TAGS=$(echo $tags)" >> $GITHUB_ENV
 
       - name: Define tags if tag not empty
@@ -91,9 +91,9 @@ jobs:
           tags="${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:latest"
           for tag in $( echo ${{ inputs.image_tags }} | sed 's/,/ /g' ); do
             read -r -d '' tags <<-EOM
-            $tags
-            ${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:${tag}
-            EOM
+          $tags
+          ${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:${tag}
+          EOM
           done
           echo "IMAGE_TAGS=$(echo $tags)" >> $GITHUB_ENV
           
