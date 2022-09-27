@@ -89,12 +89,11 @@ jobs:
         if: ${{ (inputs.image_tags != '') }}
         run: |
           tags="${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:latest"
+          
           for tag in $( echo ${{ inputs.image_tags }} | sed 's/,/ /g' ); do
-            read -r -d '' tags <<-EOM
-          $tags
-          ${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:${tag}
-          EOM
+            tags="$tags\n${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:${tag}"
           done
+          
           echo "IMAGE_TAGS=$(echo $tags)" >> $GITHUB_ENV
           
 
