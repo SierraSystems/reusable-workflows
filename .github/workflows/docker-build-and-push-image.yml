@@ -88,16 +88,16 @@ jobs:
       - name: Define tags if tag not empty
         if: ${{ (inputs.image_tags != '') }}
         run: |
-          echo "${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:latest" > tags_files
+        echo "${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:latest" > tags_files
           
-          for tag in $( echo ${{ inputs.image_tags }} | sed 's/,/ /g' ); do
-          read -r -d '' tags <<-EOM
-          ${tags}
-          ${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:${tag}
-          EOM
-          done
+        for tag in $( echo ${{ inputs.image_tags }} | sed 's/,/ /g' ); do
+        read -r -d '' tags <<-EOM
+        ${tags}
+        ${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:${tag}
+        EOM
+        done
           
-          echo -n "IMAGE_TAGS=$(echo $tags)" | tee --append $GITHUB_ENV
+        echo -n "IMAGE_TAGS=$(echo $tags)" | tee --append $GITHUB_ENV
           
 
       - name: Build from Dockerfile
