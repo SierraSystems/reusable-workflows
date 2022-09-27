@@ -25,6 +25,11 @@ on:
         type: string
         required: false
         default: ""
+      build-args:
+        type: string
+        description: "List of build args in the format of 'KEY=VALUE'. Also, it has to be one per line"
+        required: false
+        default: ""
     secrets:
       openshift_server_url:
         required: true
@@ -108,3 +113,4 @@ jobs:
           build-args: |
             APP_NAME=${{ inputs.app_name }}
             APP_VERSION=${{ inputs.app_version }}
+            ${{ inputs.build-args }}
