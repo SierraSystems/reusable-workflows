@@ -94,7 +94,7 @@ jobs:
             tags="$tags\n${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:${tag}"
           done
           
-          echo "IMAGE_TAGS=$(echo $tags)" >> $GITHUB_ENV
+          echo "IMAGE_TAGS=$(echo $tags)" | tee --append $GITHUB_ENV
           
 
       - name: Build from Dockerfile
