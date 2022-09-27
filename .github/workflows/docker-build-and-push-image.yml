@@ -91,10 +91,7 @@ jobs:
           echo "${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:latest" > tags_files
           
           for tag in $( echo ${{ inputs.image_tags }} | sed 's/,/ /g' ); do
-          read -r -d '' tags <<-EOM
-          ${tags}
-          ${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:${tag}
-          EOM
+            tags="${tags},${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:${tag}"
           done
           
           echo -n "IMAGE_TAGS=$(echo $tags)" | tee --append $GITHUB_ENV
