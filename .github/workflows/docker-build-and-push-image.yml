@@ -75,12 +75,13 @@ jobs:
           namespace: ${{ env.OPENSHIFT_NAMESPACE }}
 
       - name: Docker Login
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.docker_username }}
-          password: ${{ secrets.docker_password }}
-          registry: ${{ secrets.openshift_external_repository }}
-          ecr: false
+        run: oc registry login
+#        uses: docker/login-action@v2
+#        with:
+#          username: ${{ secrets.docker_username }}
+#          password: ${{ secrets.docker_password }}
+#          registry: ${{ secrets.openshift_external_repository }}
+#          ecr: false
 
       - name: Define tags if tag is empty
         if: ${{ (inputs.image_tags == '') }}
