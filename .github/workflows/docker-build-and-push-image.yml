@@ -97,7 +97,7 @@ jobs:
           EOM
           done
           
-          echo "IMAGE_TAGS=$(cat tags_files)" | tee --append $GITHUB_ENV
+          echo -n "IMAGE_TAGS=$(echo $tags)" | tee --append $GITHUB_ENV
           
 
       - name: Build from Dockerfile
