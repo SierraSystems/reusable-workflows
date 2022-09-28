@@ -19,6 +19,17 @@ on:
         required: false
         type: string
         default: dev
+      image_tags:
+        description: |
+          Tag(s) that the image will have after the build. If more than one tag, they should be separated them with commas
+        type: string
+        required: false
+        default: ""
+      build_args:
+        type: string
+        description: "List of build args in the format of 'KEY=VALUE'. Also, it has to be one per line"
+        required: false
+        default: ""
     secrets:
       openshift_server_url:
         required: true
@@ -64,22 +75,43 @@ jobs:
           namespace: ${{ env.OPENSHIFT_NAMESPACE }}
 
       - name: Docker Login
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.docker_username }}
           password: ${{ secrets.docker_password }}
           registry: ${{ secrets.openshift_external_repository }}
+          ecr: false
+
+      - name: Define tags if tag is empty
+        if: ${{ (inputs.image_tags == '') }}
+        run: |
+          read -r -d '' tags <<-EOM
+          ${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:latest
+          ${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:${{ inputs.app_version }}
+          EOM
+          echo "IMAGE_TAGS=$(echo $tags)" >> $GITHUB_ENV
+
+      - name: Define tags if tag not empty
+        if: ${{ (inputs.image_tags != '') }}
+        run: |
+          tags="${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:latest"
+          
+          for tag in $( echo ${{ inputs.image_tags }} | sed 's/,/ /g' ); do
+            tags="${tags},${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:${tag}"
+          done
+          
+          echo -n "IMAGE_TAGS=$(echo $tags)" | tee --append $GITHUB_ENV
+          
 
       - name: Build from Dockerfile
         id: build-image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           push: true
-          tags: |
-            ${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:latest
-            ${{ secrets.openshift_external_repository }}/${{ env.OPENSHIFT_NAMESPACE }}/${{ inputs.app_name }}:${{ inputs.app_version }}
+          tags: ${{ env.IMAGE_TAGS }}
           context: "./${{ inputs.working_directory }}"
           file: "./${{ inputs.working_directory }}/${{ inputs.dockerfile }}"
           build-args: |
             APP_NAME=${{ inputs.app_name }}
             APP_VERSION=${{ inputs.app_version }}
+            ${{ inputs.build_args }}
