@@ -72,7 +72,7 @@ jobs:
         with:
           scan-type: image
           image-ref: ${{secrets.openshift_external_repository}}/${{secrets.openshift_namespace}}/${{inputs.imagestream_name}}:${{inputs.image_tag}}
-          format: ${{ inputs.trivy_format }}
+          format: table
           exit-code: '1'
           ignore-unfixed: true
           severity: HIGH,CRITICAL
