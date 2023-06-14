@@ -47,3 +47,21 @@ jobs:
           build-args: |
             APP_NAME=${{ inputs.app_name }}
             APP_VERSION=${{ inputs.app_version }}
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@v0.11.1
+        with:
+          image-ref: ${{ inputs.app_name }}:${{ inputs.app_version }}
+          exit-code: '1'
+          ignore-unfixed: true
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: CRITICAL,HIGH
+
+       #Upload results to the GitHub Security Tab.
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+
