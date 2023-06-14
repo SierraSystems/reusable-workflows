@@ -49,7 +49,7 @@ jobs:
             APP_VERSION=${{ inputs.app_version }}
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@v0.11.1
+        uses: aquasecurity/trivy-action@0.11.1
         with:
           image-ref: ${{ inputs.app_name }}:${{ inputs.app_version }}
           exit-code: '1'
