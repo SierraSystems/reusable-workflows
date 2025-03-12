@@ -56,6 +56,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Install oc
+        if: "runner.os != 'Linux'"
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          oc: latest
+          
       - name: Printing Inputs
         run: |
           echo "app_name: ${{ inputs.app_name }}"
