@@ -31,6 +31,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+
+    - name: Install oc
+      uses: redhat-actions/openshift-tools-installer@v1
+      with:
+        oc: latest
+          
     - name: Authenticate and set context
       uses: redhat-actions/oc-login@v1
       with:
