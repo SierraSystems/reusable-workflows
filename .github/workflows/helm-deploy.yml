@@ -45,6 +45,11 @@ jobs:
 #        run: >-
 #          echo OPENSHIFT_NAMESPACE="${{ secrets.openshift_license_plate }}-${{ inputs.env }}" | tee -a $GITHUB_ENV
 
+      - name: Install oc
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          oc: latest
+          
       - name: Log in to OpenShift
         uses: redhat-actions/oc-login@v1
         with:
