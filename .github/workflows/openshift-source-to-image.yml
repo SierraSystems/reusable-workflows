@@ -37,6 +37,11 @@ jobs:
         echo "source_image_tag:   ${{ inputs.source_image_tag}}"
         echo "image_tags:         ${{ inputs.image_tags}}"
 
+    - name: Install oc
+      uses: redhat-actions/openshift-tools-installer@v1
+      with:
+        oc: latest
+
     - name: Authenticate and set context
       uses: redhat-actions/oc-login@v1
       with:
